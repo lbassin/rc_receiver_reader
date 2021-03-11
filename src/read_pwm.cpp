@@ -7,9 +7,9 @@
 
 const int pwmInputPins[] = {2, 3, 4, 5, 6, 7};
 
-int RC_min[6] = {1024, 1064, 1064, 1064, 1068, 1420};
-int RC_mid[6] = {1444, 1492, 1492, 1492, 1492, 1488};
-int RC_max[6] = {1872, 1916, 1908, 1912, 1916, 1594};
+int RC_min[6] = {1068, 1068, 1068, 1064, 1068, 1420};
+int RC_mid[6] = {1488, 1488, 1488, 1492, 1492, 1488};
+int RC_max[6] = {1920, 1920, 1908, 1912, 1916, 1594};
 
 const int numberChannels = sizeof(pwmInputPins) / sizeof(int);
 
@@ -190,7 +190,17 @@ float calibrate(float Rx, int Min, int Mid, int Max)
         calibrated = map(Rx, Min, Mid, -1000, 0);
     }
 
+    if (calibrated > 1000)
+    {
+        calibrated = 1000;
+    }
+    else if (calibrated < -1000)
+    {
+        calibrated = -1000;
+    }
+
     return calibrated * 0.001f;
+    // return calibrated;
 }
 
 float RC_decode(int channel)
@@ -243,6 +253,7 @@ PWM_Reading PWM_read(int channel)
     reading.time = measurementTimes[indexPort];
     reading.raw = pulseWidthMeasurements[indexPort];
     reading.period = pwmPeriod[indexPort];
+    reading.normalized = RC_decode(channel); // @TODO: Refactor
     interrupts();
 
     pinHasNewValue[indexPort] = LOW;

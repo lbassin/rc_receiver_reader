@@ -4,6 +4,8 @@ struct PWM_Reading
     float raw = 0.0f;
     float period = 0.0f;
     unsigned long time = 0;
+    float normalized = 0.0f;
+    
     boolean available = false;
 };
 
