@@ -2,14 +2,25 @@
 #include <Servo.h>
 #include "read_pwm.h"
 
-Servo myservo;
-// int pos = 0;
+Servo steeringServo;
+Servo throttleServo;
 
 void setup()
 {
-    myservo.attach(10);
+    steeringServo.attach(10);
+    throttleServo.attach(11);
+
     Serial.begin(9600);
+    
     setupPwmRead();
+
+    steeringServo.write(105);
+    throttleServo.write(0);
+
+    delay(1000);
+
+    steeringServo.write(105);
+    throttleServo.write(0);
 }
 
 void loop()
@@ -24,24 +35,17 @@ void loop()
         PWM_Reading speedRemote = PWM_read(2);
         PWM_Reading throttleRemote = PWM_read(3);
 
-        // long steeringValue = map(steeringRemote.normalized * 1000, -1000, 1000, 100, 132);
-        // long throttleValue = map(throttleRemote.normalized * 1000, -1000, 1000, 10, 170);
+        long steeringValue = map(steeringRemote.normalized * 1000, -1000, 1000, 100, 132);
         long speedValue = map(speedRemote.normalized * 1000, -1000, 1000, 0, 100);
 
         boolean isReverse = throttleRemote.normalized < 0;
         float throttleAbsolute = (abs(throttleRemote.normalized) / 100.0f) * speedValue;
-        
-        
-        float test = (throttleAbsolute * (isReverse ? -1 : 1))*1000;
+
+        float test = (throttleAbsolute * (isReverse ? -1 : 1)) * 1000;
 
         float throttleValue = map(test, -1000, 1000, 10, 170);
 
-        Serial.println(throttleValue);
-
-        myservo.write(throttleValue);
-
-
-        // steeringServo.write(steeringValue);
-        // throttleServo.write(throttleValue);
+        steeringServo.write(steeringValue);
+        throttleServo.write(throttleValue);
     }
 }
